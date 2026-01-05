@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Amihh tercinta</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+  font-family: 'Nunito Sans', sans-serif;
+}
+
+body.lock { overflow: hidden; }
+body.unlock { overflow-y: auto; }
+
+/* BACKGROUND */
+#bg {
+  position: fixed;
+  inset: 0;
+  background: url("/amih.png") center / cover no-repeat;
+  filter: blur(6px) brightness(0.85);
+  transform: scale(1.1);
+  z-index: -1;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  #bg {
+    background: url("/hp.png") center / cover no-repeat;
+    filter: blur(5px) brightness(0.9);
+    transform: scale(1.15);
+  }
+}
+
+/* WRAPPER */
+#wrap {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  text-align: center;
+  padding: 24px;
+}
+
+/* LOVE */
+#love {
+  font-size: 48px;
+  cursor: pointer;
+  animation: beat 1.5s infinite;
+}
+
+@keyframes beat {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* SLIDES */
+.slide {
+  display: none;
+  font-size: 18px;
+  line-height: 1.6;
+  animation: slideIn 0.6s ease forwards;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.hint {
+  margin-top: 12px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* FINAL TEXT */
+#final {
+  display: none;
+  font-size: 16px;
+  line-height: 1.7;
+  white-space: pre-line;
+  margin-bottom: 140px;
+}
+
+/* CURSOR */
+.cursor::after {
+  content: "|";
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%,50%,100% { opacity: 1; }
+  25%,75% { opacity: 0; }
+}
+</style>
+</head>
+
+<body class="lock">
+
+<div id="bg"></div>
+
+<!-- 🎵 MUSIC -->
+<audio id="bgMusic" src="music.mp3" preload="auto" loop></audio>
+
+<div id="wrap">
+
+  <!-- LOVE -->
+  <div id="love">❤️</div>
+  <div class="hint" id="hintLove">Sentuh LOVEnya amihh 🤍</div>
+
+  <!-- SLIDES -->
+  <div class="slide">hii amihh sayangg</div>
+  <div class="slide">terima kasih yaa mihh</div>
+  <div class="slide">terima kasih buat apa hayoo mihh?</div>
+  <div class="slide">baca sampai akhir yaa amihh sayangg 😋</div>
+
+  <!-- FINAL -->
+  <div id="final" class="cursor"></div>
+
+  <div class="hint" id="hintSlide" style="display:none;">
+    Geser / klik pelan yaa mihh 🤍
+  </div>
+
+</div>
+
+<script>
+/* ELEMENT */
+const love = document.getElementById("love");
+const hintLove = document.getElementById("hintLove");
+const slides = document.querySelectorAll(".slide");
+const final = document.getElementById("final");
+const hintSlide = document.getElementById("hintSlide");
+const bgMusic = document.getElementById("bgMusic");
+
+let index = 0;
+
+/* 🎵 MUSIC FADE IN */
+function playMusic() {
+  bgMusic.volume = 0;
+  bgMusic.play().catch(()=>{});
+  let v = 0;
+  const fade = setInterval(()=>{
+    if(v < 0.6){ v += 0.02; bgMusic.volume = v; }
+    else clearInterval(fade);
+  },200);
+}
+
+/* LOVE CLICK */
+love.onclick = () => {
+  playMusic();
+  love.style.display = "none";
+  hintLove.style.display = "none";
+  slides[0].style.display = "block";
+  hintSlide.style.display = "block";
+};
+
+/* SLIDE LOGIC */
+function nextSlide() {
+  if (index < slides.length - 1) {
+    slides[index].style.display = "none";
+    index++;
+    slides[index].style.display = "block";
+  } else {
+    slides[index].style.display = "none";
+    hintSlide.style.display = "none";
+    typeFinal();
+  }
+}
+
+document.addEventListener("click", () => {
+  if (slides[index]?.style.display === "block") nextSlide();
+});
+
+let startX = 0;
+document.addEventListener("touchstart", e => startX = e.touches[0].clientX);
+document.addEventListener("touchend", e => {
+  if (Math.abs(e.changedTouches[0].clientX - startX) > 50) nextSlide();
+});
+
+/* FINAL TEXT */
+const textFinal = `apihh cuma mau bilang makasih yaa, mihh…
+
+makasih karena amihh selalu milih buat ada di samping apihh,
+nerima apihh apa adanya, dengan semua kurang dan capeknya apihh 🫶
+
+sejak kenal dan deket sama amihh,
+hari-hari apihh jadi lebih tenang, lebih hangat,
+hal-hal kecil jadi terasa berarti karena ada amihh di situ 🤍
+
+amihh itu sederhana, tapi cara amihh sayang ke apihh
+selalu bikin apihh ngerasa cukup, ngerasa pulang,
+dan ngerasa dicintai tanpa syarat 🥺
+
+apihh sayang amihh banget…
+bukan cuma hari ini,
+tapi besok, lusa, dan selamanya 🤍
+
+I wuf youu amihhh,
+always and forever 🫶🤍`;
+
+let char = 0;
+let autoScroll;
+
+/* AUTO SCROLL */
+function startScroll() {
+  autoScroll = setInterval(()=>{
+    window.scrollTo({ top: document.body.scrollHeight });
+  }, 350);
+}
+function stopScroll() {
+  clearInterval(autoScroll);
+}
+
+/* RELEASE SCROLL */
+function releaseScroll() {
+  document.body.style.scrollBehavior = "auto";
+  window.scrollBy({ top: -1 });
+}
+
+/* TYPEWRITER */
+function typeFinal() {
+  document.body.classList.replace("lock","unlock");
+  final.style.display = "block";
+  startScroll();
+
+  if (char < textFinal.length) {
+    const c = textFinal.charAt(char);
+    final.textContent += c;
+    char++;
+
+    let delay = 35 + Math.random()*30;
+
+    if (c === "\n") {
+      stopScroll();
+      delay = 700;          // 🌸 pause tiap paragraf
+      setTimeout(startScroll, 500);
+    }
+
+    setTimeout(typeFinal, delay);
+  } else {
+    final.classList.remove("cursor");
+    stopScroll();
+    setTimeout(releaseScroll, 300);
+  }
+}
+</script>
+
+</body>
+</html>
